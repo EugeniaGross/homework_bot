@@ -10,12 +10,6 @@ class JsonFormatError(Exception):
     pass
 
 
-class VaribleError(Exception):
-    """Переменные окружения не доступны."""
-
-    pass
-
-
 class StatusHomeworkError(Exception):
     """Недокументированный статус домашней работы."""
 
