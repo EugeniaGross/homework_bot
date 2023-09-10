@@ -51,7 +51,7 @@ def send_message(bot, message):
         )
         logging.debug(f'Бот отправил сообщение - {message}')
     except Exception as error:
-        logging.error(f'Ошибка при отправке сообщения - {error}')
+        logging.error(f'Ошибка отправки сообщения: {error}')
         raise MessageSentError(f'Ошибка при отправке сообщения - {error}')
 
 
@@ -66,15 +66,12 @@ def get_api_answer(timestamp):
     except requests.exceptions.RequestException as error:
         raise RequestError(f'Ошибка запроса - {error}')
     except Exception as error:
-        logging.error(f'Сбой при запросе к эндпоинту: {error}')
         raise RequestError(f'Сбой при запросе к эндпоинту - {error}')
     if response.status_code != 200:
-        logging.error(f'Статус запроса: {response.status_code}')
         raise RequestError(f'Статус запроса - {response.status_code}')
     try:
         return response.json()
     except Exception as error:
-        logging.error(f'Получен формат отличный от json: {error}')
         raise JsonFormatError(f'Ошибка формата - {error}')
 
 
@@ -89,25 +86,24 @@ def check_response(response):
         raise KeyError('В ответе API нет ключа "homeworks"')
     if not isinstance(response['homeworks'], list):
         raise TypeError('Ключ "homeworks" не является списком')
-    if 'current_date' in response:
-        return response
+    if 'current_date' not in response:
+        raise KeyError('В ответе API нет ключа "current_date"')
+    return response
 
 
 def parse_status(homework):
     """Извлекает статус домашней работы."""
     logging.debug('Начало извлечения статуса домашней работы')
-    if "homework_name" in homework:
-        homework_name = homework["homework_name"]
-    else:
+    if "homework_name" not in homework:
         raise KeyError('Отсутсвует ключ "homework_name"')
-    if "status" in homework:
-        status = homework["status"]
-    else:
+    if "status" not in homework:
         raise KeyError('Отсутсвует ключ "status"')
-    if status in HOMEWORK_VERDICTS:
-        verdict = HOMEWORK_VERDICTS[status]
-        return f'Изменился статус проверки работы "{homework_name}". {verdict}'
-    raise StatusHomeworkError('Недокументированный статус домашней работы')
+    homework_name = homework["homework_name"]
+    status = homework["status"]
+    if status not in HOMEWORK_VERDICTS:
+        raise StatusHomeworkError('Недокументированный статус домашней работы')
+    verdict = HOMEWORK_VERDICTS[status]
+    return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
 def main():
