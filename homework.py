@@ -118,14 +118,14 @@ def main():
         try:
             response = get_api_answer(timestamp)
             good_response = check_response(response)
-            message = parse_status(good_response['homeworks'][0])
+            if good_response['homeworks'][0]:
+                message = parse_status(good_response['homeworks'][0])
+            else:
+                message = 'Статус работы не изменился'
             timestamp = good_response['current_date']
             if message != bot_message:
                 send_message(bot, message)
                 bot_message = message
-        except IndexError:
-            message = 'Статус работы не изменился'
-            send_message(bot, message)
         except telegram.error.TelegramError(
             'Ошибка отправки сообщения в телеграмм'
         ):
