@@ -118,7 +118,7 @@ def main():
         try:
             response = get_api_answer(timestamp)
             good_response = check_response(response)
-            if good_response['homeworks'][0]:
+            if good_response['homeworks']:
                 message = parse_status(good_response['homeworks'][0])
             else:
                 message = 'Статус работы не изменился'
@@ -126,7 +126,7 @@ def main():
             if message != bot_message:
                 send_message(bot, message)
                 bot_message = message
-        except telegram.error.TelegramError(
+        except MessageSentError(
             'Ошибка отправки сообщения в телеграмм'
         ):
             logging.error('Ошибка отправки сообщения в телеграмм')
